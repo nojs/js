@@ -10,8 +10,14 @@ var _stat={
 
 var stat=gg.choice([
   gg.mseq([
-    [["{",gg.list([_stat,gg.opt([";"])]),"}"],{builder:function(ee){
-      return ["Block",ee[0]]}}],
+    [["var",gg.list(
+      [gg.seq([gg.id,
+               gg.opt(
+                 [gg.seq(
+                   ["=",expr],
+                   {builder:function(ee){return ee[0]}})])]),","])],
+     {builder:function(ee){
+       return ["Var",ee]}}],
     [[";"],builder:function(ee){
       return ["Nop"]}],
     [["if","(",expr,")",_stat,
@@ -21,6 +27,8 @@ var stat=gg.choice([
                   return ee[0]}})])],
      {builder:function(ee){
        return ["If",ee[0],ee[1],ee[2]]}}],
+    [["{",gg.list([_stat,gg.opt([";"])]),"}"],{builder:function(ee){
+      return ["Block",ee[0]]}}],
     [["while","(",expr,")",_stat],{builder:function(ee){
       return ["While",ee[0],ee[1]]}}],
     [["for","(",for_header,")",_stat],{builder:function(ee){
