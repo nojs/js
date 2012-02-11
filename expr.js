@@ -1,9 +1,9 @@
 
 
 var gg=require("no/gg").gg
-var lx=require("./js_lx")
-var js_object=require("./js_object")
-var js_array=require("./js_array")
+var lx=require("./lexer")
+var js_object=require("./object")
+var js_array=require("./array")
 
 var _expr={
   parse:function(){
