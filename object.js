@@ -13,7 +13,8 @@ var js_object=gg.seq(
           gg.string,
           gg.number]),":",expr],
        {builder:function(ee){
-         return ["Pair",ee[0],ee[1]]}})]),
+         return ["Pair",ee[0],ee[1]]}}),
+      ","]),
    "}"],{
      builder:function(ee){
        return ["Object",ee]}})
