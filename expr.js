@@ -4,6 +4,7 @@ var gg=require("no/gg").gg
 var lx=require("./lexer")
 var js_object=require("./object")
 var js_array=require("./array")
+var stat=require("./stat")
 
 var _expr={
   parse:function(){
@@ -15,7 +16,12 @@ expr=gg.expr([],{
     gg.mseq([
       [["(",_expr,")"],{builder:function(ee){
         return ["Paren",ee[0]]}}],
-      [[]]]),
+      [["function",gg.opt([gg.id]),"(",
+        gg.list([gg.id,","]),")","{",
+        gg.list(stat),"}"],
+       {builder:function(ee){
+         return ["Function",ee[0],ee[1],
+           ee[2]]}}]]),
     gg.id,
     js_array,
     js_object,
