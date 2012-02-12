@@ -2,11 +2,17 @@
 var gg=require("no/gg").gg
 var lx=require("./lexer")
 
-var expr=require("./expr")
-
 var _stat={
   parse:function(){
     return stat.parser.apply(stat,arguments)}}
+module.exports=_stat
+
+var expr=require("./expr").expr
+
+var for_header=gg.choice(
+  [gg.seq([_stat,_stat,_stat],{}),
+   gg.seq(["var",gg.id,"in",expr]),
+   gg.seq([gg.id,"in",expr])])
 
 var stat=gg.choice([
   gg.mseq([
@@ -18,8 +24,8 @@ var stat=gg.choice([
                    {builder:function(ee){return ee[0]}})])]),","])],
      {builder:function(ee){
        return ["Var",ee]}}],
-    [[";"],builder:function(ee){
-      return ["Nop"]}],
+    [[";"],{builder:function(ee){
+      return ["Nop"]}}],
     [["if","(",expr,")",_stat,
       gg.opt(
         [gg.seq(["else",_stat],
@@ -36,7 +42,7 @@ var stat=gg.choice([
     [["do",_stat,"while","(",expr,")"],
      {builder:function(ee){
        return ["Do",ee[1],ee[0]]}}],
-    [["return",gg.opt(gg.expr)],
+    [["return",gg.opt(expr)],
      {builder:function(ee){
        return ["Return",ee[0]]}}],
     [["continue",gg.opt(gg.id)],
@@ -55,7 +61,7 @@ var stat=gg.choice([
       gg.opt(
         [gg.seq(
           ["default",":",_stat],
-          {builder:function(ee){return ee[0]}})])
+          {builder:function(ee){return ee[0]}})]),
       "}"],
      {builder:function(ee){
        return ["Switch",ee[0],
@@ -72,7 +78,7 @@ var stat=gg.choice([
             gg.list([_stat,gg.opt(";")]),"}"])]),
       gg.opt(
         [gg.seq(["finally","{",
-                 gg.list([_stat,gg.opt(";")])
+                 gg.list([_stat,gg.opt(";")]),
                 "}"])])
      ],{builder:function(ee){
        //FIXME
@@ -85,6 +91,4 @@ var stat=gg.choice([
 ])
 
 
-
-module.exports=stat
 

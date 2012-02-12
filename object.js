@@ -2,7 +2,13 @@
 var gg=require("no/gg").gg
 var lx=require("./lexer")
 
-var expr=require("./expr")
+module.exports={
+  parse:function(){
+    return js_object.parse.apply(js_object,arguments)}}
+
+var _=require("./expr")
+var expr=_.expr
+var expr_no_top_comma=_.expr_no_top_comma
 
 var js_object=gg.seq(
   ["{",
@@ -19,6 +25,5 @@ var js_object=gg.seq(
      builder:function(ee){
        return ["Object",ee]}})
 
-module.exports=js_object
 
 
