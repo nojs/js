@@ -15,8 +15,19 @@ tt.add(
     var ls=lx.extract("[1,(2,4),3,4,a,b,c]")
     var x=array.parse(ls)
     dbg&&__log(x)
-  }
-)
+    __assert(__eql(
+      x,
+      ["Array",
+       [["Number", 1],
+        ["Paren",
+         ["Op", ",",
+          ["Number", 2],
+          ["Number", 4]]],
+        ["Number", 3],
+        ["Number", 4],
+        ["Id", "a"],
+        ["Id", "b"],
+        ["Id", "c"]]]))})
 
 
 tt.run_all(dbg)

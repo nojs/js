@@ -17,13 +17,13 @@ var js_object=gg.seq(
        [gg.choice(
          [gg.id,
           gg.string,
-          gg.number]),":",expr],
+          gg.number]),":",expr_no_top_comma],
        {builder:function(ee){
          return ["Pair",ee[0],ee[1]]}}),
       ","]),
    "}"],{
      builder:function(ee){
-       return ["Object",ee]}})
+       return ["Object",ee[0]]}})
 
 
 

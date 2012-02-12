@@ -23,12 +23,14 @@ var expr=gg.expr([],{
     gg.mseq([
       [["(",_expr,")"],{builder:function(ee){
         return ["Paren",ee[0]]}}],
-      [["function",gg.opt([gg.id]),"(",
+      [["function",gg.opt(gg.id),"(",
         gg.list([gg.id,","]),")","{",
         gg.list([stat]),"}"],
        {builder:function(ee){
-         return ["Function",ee[0],ee[1],
-           ee[2]]}}]]),
+         return ["Function",{
+           "name":ee[0],
+           "args":ee[1],
+           "body":ee[2]}]}}]]),
     gg.id,
     js_array,
     js_object,
@@ -151,7 +153,7 @@ var expr_no_comma=gg.expr([],{
     gg.mseq([
       [["(",_expr,")"],{builder:function(ee){
         return ["Paren",ee[0]]}}],
-      [["function",gg.opt([gg.id]),"(",
+      [["function",gg.opt(gg.id),"(",
         gg.list([gg.id,","]),")","{",
         gg.list([stat]),"}"],
        {builder:function(ee){

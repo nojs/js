@@ -14,8 +14,8 @@ var dbg=true
 tt.add(
   "simple expr",
   function (){
-    debugger
-    var ls=lx.extract("a+b-c*d")
+    var P="a+b-c*d"
+    var ls=lx.extract(P)
     var x=expr.parse(ls)
     dbg&&console.dir(x)
     __assert(__eql(
