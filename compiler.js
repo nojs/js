@@ -78,7 +78,7 @@ var compile_table={
     var body=ee[3]
     __assert(tag==="Function")
     var xx=[
-      "function",name||"","(",MAP(args,function(a){return a[1]}).join(","),")","{\n",
+      "function",name?" "+name[1]:"","(",MAP(args,function(a){return a[1]}).join(","),")","{\n",
       MAP(body,function(s){
         return compile(s)}).join("\n"),"}"]
     return xx.join("")},
@@ -371,27 +371,28 @@ var op_compile_table={
 
 module.exports={
   compile:compile,
-  quote:compile_quote
+  quote:quote
 }
 
-function compile_quote(ee){
-  return _quote(ee)
-  
-  function _quote(ee){
-    if(ee && typeof ee==="object"
-       && typeof ee.length==="number"){
-      if(typeof ee[0]==="string"){
-        var xx=[
-          "[",'"',ee[0],'"',
-          MAP(ee.slice(1),function(e,i){
-            return _quote(e)}).join(","),"]"]
-        return xx.join("")}
-      else{
-        var xx=[
-          "[",MAP(ee,function(e,i){
-            return _quote(e)}).join(","),"]"]
-        return xx.join("")}}
-    return ee}}
+function quote_compile(ee){
+  var tag=ee[0]
+  __assert(tag==="Quote")
+  return quote(ee[1])
+}
+
+function quote(ee){
+  false&&console.log("======quote")
+  false&&console.log(ee)
+  if(ee===null){
+    return ee}
+  __assert(ee && typeof ee==="object"
+           &&typeof ee.length==="number"
+           &&ee.length)
+  var tag=ee[0]
+  var Q=quote_table[tag]
+  __assert(Q,"unknown tag:"+tag)
+  return Q(ee)
+}
 
 function qS(s){
   //FIXME: s=escape_string(s)
@@ -418,7 +419,8 @@ function qOp(op){
 var quote_table={
   //Quote:qop1,
   Splice:function(ee){
-    return compile(ee)},
+    __assert(ee[0]==="Splice")
+    return compile(ee[1])},
   Id:function(ee){
     __assert(ee[0]==="Id")
     return qA(
@@ -441,11 +443,11 @@ var quote_table={
     __assert(tag==="Function")
     var xx=[
       qS(ee[0]),
-      quote(name),
-      MAP(args,function(a){
-        return quote(a)}),
-      MAP(body,function(s){
-        return quote(s)})]
+      name?quote(name):"null",
+      qA(MAP(args,function(a){
+        return quote(a)})),
+      qA(MAP(body,function(s){
+        return quote(s)}))]
     return qA(xx)},
   
   Block:function(ee){
@@ -453,7 +455,7 @@ var quote_table={
     __assert(tag==="Block")
     var stats=ee[1]
     var xx=[
-      qS("Block")
+      qS("Block"),
       qA(MAP(stats,function(s){
         return  quote(s)}))]
     return qA(xx)},
@@ -467,7 +469,7 @@ var quote_table={
       qA(MAP(decls,function(d){
         return qA([quote(d[0]),
              quote(d[1])])}))]
-    return qA(xx)}
+    return qA(xx)},
 
   Array:function(ee){
     var tag=ee[0]
@@ -518,7 +520,9 @@ var quote_table={
   Pair:qfn("Pair"),
 
   Op:function(ee){
-    __assert(ee[0]==="Op")
+    var tag=ee[0]
+    __assert(tag==="Op")
+    var op=ee[1]
     var xx=[qS("Op"),qS(op)]
     MAP(ee.slice(2),function(e){
       xx.push(quote(e))})

@@ -37,18 +37,25 @@ tt.add(
     console.log(s)
 })
 
-
-false && tt.add(
-  "simple compile 2",function(){
-    var src=get_sample("s01")
+tt.add(
+  "simple quote 1",function(){
+    var src="var a=`{a+,{b}}"
     var ls=lx.extract(src)
-    var xx=[]
-    var s=jsc.compile(
-      ["Var",
-        [[["Id", "lx"],
-          ["Call",
-           ["Id", "require"],
-           [["String", "./lexer"]]]]]])
+    var x=stat.parse(ls)
+    console.log(x)
+    var s=jsc.compile(x)
+    console.log(s)
+})
+
+
+tt.add(
+  "simple compile 2",function(){
+    var src=get_sample("meta01")
+    console.log(src)
+    var ls=lx.extract(src)
+    var x=stat.parse(ls)
+    __log(x)
+    var s=jsc.compile(x)
     console.log(s)
 })
 
