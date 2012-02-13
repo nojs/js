@@ -27,6 +27,7 @@ var expr=gg.expr([],{
         gg.list([gg.id,","]),")","{",
         gg.list([stat]),"}"],
        {builder:function(ee){
+         return ["Function",ee[0],ee[1],ee[2]]
          return ["Function",{
            "name":ee[0],
            "args":ee[1],
@@ -136,7 +137,7 @@ var expr=gg.expr([],{
       return ["Dot",e,op[0]]}}],
     [["[",_expr,"]"],{prec:10,builder:function(e,op){
       return ["Idx",e,op[0]]}}],
-    [["(",gg.list([_expr,","]),")"],
+    [["(",gg.list([_expr_no_top_comma,","]),")"],
      {prec:20,builder:function(e,op){
        return ["Call",e,op[0]]}}],
     [["++"],{prec:30,builder:function(e,op){
@@ -262,7 +263,7 @@ var expr_no_comma=gg.expr([],{
       return ["Dot",e,op[0]]}}],
     [["[",_expr,"]"],{prec:10,builder:function(e,op){
       return ["Idx",e,op[0]]}}],
-    [["(",gg.list([_expr,","]),")"],
+    [["(",gg.list([_expr_no_top_comma,","]),")"],
      {prec:20,builder:function(e,op){
        return ["Call",e,op[0]]}}],
     [["++"],{prec:30,builder:function(e,op){
