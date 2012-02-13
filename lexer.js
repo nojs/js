@@ -33,5 +33,8 @@ js_lx.add([
   "&=","^=","|="
 ])
 
+js_lx.add([
+  "`{",",{"
+])
 
 module.exports=js_lx

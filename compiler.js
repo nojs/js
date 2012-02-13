@@ -58,6 +58,8 @@ function fop1s(op){
     return [compile(e),op].join(sep)}}
 
 var compile_table={
+  Quote:function(ee){
+    return quote_compile(ee)},
   Id:function(ee){
     __assert(ee[0]==="Id")
     var xx=[ee[1]]
@@ -271,11 +273,10 @@ var compile_table={
     var tag=ee[0]
     __assert(tag==="Array")
     var elts=ee[1]
-    //FIXME: add commas to elts
     var xx=[
       "[",
       MAP(elts,function(e){
-        return compile(e)}),
+        return compile(e)}).join(","),
       "]"]
     return xx.join("")},
   
@@ -369,5 +370,175 @@ var op_compile_table={
 
 
 module.exports={
-  compile:compile
+  compile:compile,
+  quote:compile_quote
 }
+
+function compile_quote(ee){
+  return _quote(ee)
+  
+  function _quote(ee){
+    if(ee && typeof ee==="object"
+       && typeof ee.length==="number"){
+      if(typeof ee[0]==="string"){
+        var xx=[
+          "[",'"',ee[0],'"',
+          MAP(ee.slice(1),function(e,i){
+            return _quote(e)}).join(","),"]"]
+        return xx.join("")}
+      else{
+        var xx=[
+          "[",MAP(ee,function(e,i){
+            return _quote(e)}).join(","),"]"]
+        return xx.join("")}}
+    return ee}}
+
+function qS(s){
+  //FIXME: s=escape_string(s)
+  return '"'+s+'"'}
+function qA(ee){
+  return "["+ee.join(",")+"]"}
+function qfn(tag){
+  return function (ee){
+    __assert(ee[0]===tag)
+    var xx=MAP(ee.slice(1),function(e){
+      return quote(e)})
+    xx.unshift(qS(ee[0]))
+    return qA(xx)}}
+function qOp(op){
+  //not needed?
+  return function(ee){
+    __assert(ee[0]==="Op"
+             && ee[1]===op)
+    var xx=[qS("Op"),qS(op)]
+    MAP(ee.slice(2),function(e){
+      xx.push(quote(e))})
+    return qA(xx)}}
+
+var quote_table={
+  //Quote:qop1,
+  Splice:function(ee){
+    return compile(ee)},
+  Id:function(ee){
+    __assert(ee[0]==="Id")
+    return qA(
+      [qS(ee[0]),qS(ee[1])])},
+  String:function(ee){
+    __assert(ee[0]==="String")
+    var xx=[
+      qS(ee[0]),qS(ee[1])]
+    return qA(xx)},
+  Number:function(ee){
+    __assert(ee[0]==="Number")
+    var xx=[qS(ee[0]),ee[1]]
+    return qA(xx)},
+
+  Function:function(ee){
+    var tag=ee[0]
+    var name=ee[1]
+    var args=ee[2]
+    var body=ee[3]
+    __assert(tag==="Function")
+    var xx=[
+      qS(ee[0]),
+      quote(name),
+      MAP(args,function(a){
+        return quote(a)}),
+      MAP(body,function(s){
+        return quote(s)})]
+    return qA(xx)},
+  
+  Block:function(ee){
+    var tag=ee[0]
+    __assert(tag==="Block")
+    var stats=ee[1]
+    var xx=[
+      qS("Block")
+      qA(MAP(stats,function(s){
+        return  quote(s)}))]
+    return qA(xx)},
+  
+  Var:function(ee){
+    var tag=ee[0]
+    __assert(tag==="Var")
+    var decls=ee[1]
+    var xx=[
+      qS(tag),
+      qA(MAP(decls,function(d){
+        return qA([quote(d[0]),
+             quote(d[1])])}))]
+    return qA(xx)}
+
+  Array:function(ee){
+    var tag=ee[0]
+    __assert(tag==="Array")
+    var elts=ee[1]
+    var xx=[
+      qS(ee[0]),
+      qA(MAP(elts,function(e){
+        return quote(e)}))]
+    return qA(xx)},
+  
+  Object:function(ee){
+    var tag=ee[0]
+    __assert(tag==="Object")
+    var pairs=ee[1]
+    var xx=[
+      qS(ee[0]),
+      qA(MAP(pairs,function(p){
+        return quote(p)}))]
+    return qA(xx)},
+
+  Call:function(ee){
+    var tag=ee[0]
+    __assert(tag==="Call")
+    var expr=ee[1]
+    var args=ee[2]
+    var xx=[
+      qS(ee[0]),
+      qA(MAP(args,function(arg){
+        return quote(arg)}))]
+    return qA(xx)},
+
+  While:qfn("While"),
+  Do:qfn("Do"),
+  For:qfn("For"),
+  For_num:qfn("For_num"),
+  For_in:qfn("For_in"),
+  If:qfn("If"),
+  Cond:qfn("Cond"),
+  Return:qfn("Return"),
+  Throw:qfn("Throw"),
+  Continue:qfn("Continue"),
+  Break:qfn("Break"),
+  Label:qfn("Label"),
+  Paren:qfn("Paren"),
+  Dot:qfn("Dot"),
+  Idx:qfn("Idx"),
+  Pair:qfn("Pair"),
+
+  Op:function(ee){
+    __assert(ee[0]==="Op")
+    var xx=[qS("Op"),qS(op)]
+    MAP(ee.slice(2),function(e){
+      xx.push(quote(e))})
+    return qA(xx)},
+
+  Switch:function(ee){
+    var tag=ee[0]
+    __assert(tag==="Switch")
+    throw ["not implemented"]},
+  
+  Try:function(ee){
+    var tag=ee[0]
+    __assert(tag==="Try")
+    var block=ee[1]
+    var catches=ee[2]
+    var finblock=ee[3]
+    throw ["not impolemented"]},
+  
+}
+
+
+
+
