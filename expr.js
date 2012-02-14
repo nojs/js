@@ -16,19 +16,21 @@ module.exports={
 
 var js_object=require("./object")
 var js_array=require("./array")
-var stat=require("./stat")
+
+var _=require("./meta")
+var splice=_.splice
+var quote=_.quote
+
+var stat=require("./stat").stat
+var id=require("./id")
 
 var expr=gg.expr([],{
   primary:gg.choice([
     gg.mseq([
       [["(",_expr,")"],{builder:function(ee){
         return ["Paren",ee[0]]}}],
-      [["`{",_expr,"}"],{builder:function(ee){
-        return ["Quote",ee[0]]}}],
-      [[",{",_expr,"}"],{builder:function(ee){
-        return ["Splice",ee[0]]}}],
-      [["function",gg.opt(gg.id),"(",
-        gg.list([gg.id,","]),")","{",
+      [["function",gg.opt(id),"(",
+        gg.list([id,","]),")","{",
         gg.list([stat]),"}"],
        {builder:function(ee){
          return ["Function",ee[0],ee[1],ee[2]]
@@ -36,9 +38,11 @@ var expr=gg.expr([],{
            "name":ee[0],
            "args":ee[1],
            "body":ee[2]}]}}]]),
-    gg.id,
+    id,
     js_array,
     js_object,
+    splice,
+    quote,
     //gg.regexp,
     gg.string,
     gg.number]),
@@ -137,7 +141,7 @@ var expr=gg.expr([],{
     [[","],{prec:170,builder:function(e1,op,e2){
       return ["Op",",",e1,e2]}}]],
   suffix:[
-    [[".",gg.id],{prec:10,builder:function(e,op){
+    [[".",id],{prec:10,builder:function(e,op){
       return ["Dot",e,op[0]]}}],
     [["[",_expr,"]"],{prec:10,builder:function(e,op){
       return ["Idx",e,op[0]]}}],
@@ -158,20 +162,18 @@ var expr_no_comma=gg.expr([],{
     gg.mseq([
       [["(",_expr,")"],{builder:function(ee){
         return ["Paren",ee[0]]}}],
-      [["`{",_expr,"}"],{builder:function(ee){
-        return ["Quote",ee[0]]}}],
-      [[",{",_expr,"}"],{builder:function(ee){
-        return ["Splice",ee[0]]}}],
-      [["function",gg.opt(gg.id),"(",
-        gg.list([gg.id,","]),")","{",
+      [["function",gg.opt(id),"(",
+        gg.list([id,","]),")","{",
         gg.list([stat]),"}"],
        {builder:function(ee){
          return ["Function",ee[0],ee[1],
            ee[2]]}}]]),
-    gg.id,
+    id,
     js_array,
     js_object,
     //gg.regexp,
+    quote,
+    splice,
     gg.string,
     gg.number]),
   prefix:[
@@ -267,7 +269,7 @@ var expr_no_comma=gg.expr([],{
     [["|="],{prec:160,assoc:"right",builder:function(e1,op,e2){
       return ["Op","|=",e1,e2]}}]],
   suffix:[
-    [[".",gg.id],{prec:10,builder:function(e,op){
+    [[".",id],{prec:10,builder:function(e,op){
       return ["Dot",e,op[0]]}}],
     [["[",_expr,"]"],{prec:10,builder:function(e,op){
       return ["Idx",e,op[0]]}}],

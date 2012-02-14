@@ -1,4 +1,41 @@
 
+
+
+
+function compile_match(ee){
+  var tag=ee[0]
+  __assert(tag==="Match")
+  var expr=ee[1]
+  var pairs=ee[2]
+  MAP(pairs,function(p,i){
+    var pattern=p[0]
+    var stat=p[1]
+    var x=compile_pattern(p0)
+  })
+}
+
+
+function compile_pattern(ee){
+  if(typeof ee==="object"
+          && typeof ee.length==="number"){
+    var tag=ee[0]
+    if(tag==="Array"){
+      var elts=ee[1]
+      var sym=gensym()
+      `{var }
+      var cc=MAP(elts,function(e,i){
+        return compile_pattern(e)})
+      
+    }
+    else{
+      return `{if(,{X}===,{ee}){
+        action()}}}}
+  else if(ee===null){
+    return `{if(,{X}===null){
+      action()}}}
+}
+
+
 var gg=require("no/gg").gg
 var lx=require("./lexer")
 
@@ -6,32 +43,26 @@ var _stat={
   parse:function(){
     return stat.parse.apply(stat,arguments)}}
 
-var block=gg.list([_stat,gg.opt(";")])
-
-module.exports={
-  stat:_stat,
-  block:block}
+module.exports=_stat
 
 var _=require("./expr")
 var expr=_.expr
 var expr_no_top_comma=_.expr_no_top_comma
-var id=require("./id")
-var splice=require("./meta").splice
 
 var for_header=gg.choice(
   [gg.seq([_stat,_stat,_stat],
           {builder:function(ee){
             return ["For_num",ee[0],ee[1],ee[2]]}}),
-   gg.seq(["var",id,"in",expr],
+   gg.seq(["var",gg.id,"in",expr],
           {builder:function(ee){
             return ["For_in",ee[0],ee[1]]}}),
-   gg.seq([id,"in",expr],
+   gg.seq([gg.id,"in",expr],
           {builder:function(ee){
             return ["For_in",ee[0],ee[1]]}})])
 
 var atomic_stat=gg.mseq([
   [["var",gg.list(
-    [gg.seq([id,
+    [gg.seq([gg.id,
              gg.opt(
                gg.seq(
                  ["=",expr_no_top_comma],
@@ -48,7 +79,7 @@ var atomic_stat=gg.mseq([
                return ee[0]}}))],
    {builder:function(ee){
      return ["If",ee[0],ee[1],ee[2]]}}],
-  [["{",block,"}"],{builder:function(ee){
+  [["{",gg.list([_stat,gg.opt(";")]),"}"],{builder:function(ee){
     return ["Block",ee[0]]}}],
   [["while","(",expr,")",_stat],{builder:function(ee){
     return ["While",ee[0],ee[1]]}}],
@@ -60,10 +91,10 @@ var atomic_stat=gg.mseq([
   [["return",gg.opt(expr)],
    {builder:function(ee){
      return ["Return",ee[0]]}}],
-  [["continue",gg.opt(id)],
+  [["continue",gg.opt(gg.id)],
    {builder:function(ee){
      return ["Continue",ee[0]]}}],
-  [["break",gg.opt(id)],
+  [["break",gg.opt(gg.id)],
    {builder:function(ee){
      return ["Break",ee[0]]}}],
   [["with","(",expr,")",_stat],
@@ -82,12 +113,6 @@ var atomic_stat=gg.mseq([
      return ["Switch",ee[0],
        ee[2],//default branch
        ee[1]]}}],
-  [["match","(",expr,")","{",
-    gg.list(
-      [gg.seq(
-        [expr,":",_stat])]),"}"],
-   {builder:function(ee){
-     return ["Match",ee[0],ee[1]]}}],
   [["throw",expr],{builder:function(ee){
     return ["Throw",ee[0]]}}],
   [["try","{",
@@ -95,7 +120,7 @@ var atomic_stat=gg.mseq([
     "}",
     gg.list(
       [gg.seq(
-        ["catch","(",id,")","{",
+        ["catch","(",gg.id,")","{",
          gg.list([_stat,gg.opt(";")]),"}"])]),
     gg.opt(
       gg.seq(["finally","{",
@@ -111,12 +136,12 @@ var stat=gg.choice([
   gg.seq([expr,gg.opt(";")],{
     builder:function(ee){return ee[0]}}),
   gg.seq(
-    [id,":",_stat],
+    [gg.id,":",_stat],
     {builder:function(ee){
       return ["Label",ee[0],ee[1]]}}),
   gg.seq([";"],{
     builder:function(ee){
-      return ["Nop"]}}),
-  splice])
+      return ["Nop"]}}),])
+
 
 

@@ -1,15 +1,10 @@
 
 
-
 function make_for(A,B,C,BODY){
-  var r=`{
-    function(){
-      ,{A}
-      while(,{B}){
-        ,{BODY}
-        ,{C}}}}
+  var q=`{var ,{A}=a+b}
   return r
 }
+
 
 
 

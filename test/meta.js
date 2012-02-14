@@ -12,7 +12,7 @@ var _=require("no/smoke")
 var T=_.Tests,__eql=_.__eql,__assert=_.__assert
 var __log=_.__log
 
-var stat=require("../stat")
+var stat=require("../stat").stat
 var lx=require("../lexer")
 var jsc=require("../compiler")
 
@@ -42,7 +42,7 @@ tt.add(
     var src="var a=`{a+,{b}}"
     var ls=lx.extract(src)
     var x=stat.parse(ls)
-    console.log(x)
+    dbg&&__log(x)
     var s=jsc.compile(x)
     console.log(s)
 })
@@ -171,4 +171,5 @@ false && tt.add(
 
 
 tt.run_all(dbg)
+
 
