@@ -12,7 +12,8 @@ var _=require("no/smoke")
 var T=_.Tests,__eql=_.__eql,__assert=_.__assert
 var __log=_.__log
 
-var stat=require("../stat").stat
+var _=require("../stat")
+var stat=_.stat,block=_.block
 var lx=require("../lexer")
 var jsc=require("../compiler")
 
@@ -24,7 +25,7 @@ function get_sample(sn){
 var tt=new T()
 var dbg=true
 
-tt.add(
+false && tt.add(
   "simple quote",function(){
     var s=jsc.quote(
       ["Var",
@@ -37,7 +38,7 @@ tt.add(
     console.log(s)
 })
 
-tt.add(
+false && tt.add(
   "simple quote 1",function(){
     var src="var a=`{a+,{b}}"
     var ls=lx.extract(src)
@@ -48,15 +49,51 @@ tt.add(
 })
 
 
-tt.add(
-  "simple compile 2",function(){
+false && tt.add(
+  "simple meta compile",function(){
+    var src=
+      "function make_for(A,B,C,BODY){\n"+
+      "  var q=`{var ,{A}= a+b}\n"+
+      "  return r\n"+
+      "}\n"
+    
+    console.log(src)
+    var ls=lx.extract(src)
+    var x=stat.parse(ls)
+    dbg && __log(x)
+    var s=jsc.compile(x)
+    dbg && console.log(s)
+    __assert(__eql(
+    s,
+      'function make_for(A,B,C,BODY){\n'+
+        'var q=["Var",[[A,["Op","+",["Id","a"],["Id","b"]]]]]\n'+
+        'return r}'))})
+
+false && tt.add(
+  "simple meta compile 1",function(){
     var src=get_sample("meta01")
+      
     console.log(src)
     var ls=lx.extract(src)
     var x=stat.parse(ls)
     __log(x)
     var s=jsc.compile(x)
     console.log(s)
+})
+
+tt.add(
+  "simple meta compile 2",function(){
+    var src=get_sample("match")
+      
+    console.log(src)
+    var ls=lx.extract(src)
+    //__log(ls.tokens)
+    var xx=block.parse(ls)
+    __log(xx)
+    MAP(xx,function(x){
+      var s=jsc.compile(x)
+      console.log(s)})
+    
 })
 
 

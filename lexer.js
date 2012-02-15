@@ -34,7 +34,7 @@ js_lx.add([
 ])
 
 js_lx.add([
-  "`{",",{"
+  "`{",",{","match"
 ])
 
 module.exports=js_lx

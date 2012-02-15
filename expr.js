@@ -97,7 +97,7 @@ var expr=gg.expr([],{
     [["instanceof"],{prec:80,builder:function(e1,op,e2){
       return ["Op","instanceof",e1,e2]}}],
     [["=="],{prec:90,builder:function(e1,op,e2){
-      return ["Op","instanceof",e1,e2]}}],
+      return ["Op","==",e1,e2]}}],
     [["!="],{prec:90,builder:function(e1,op,e2){
       return ["Op","!=",e1,e2]}}],
     [["==="],{prec:90,builder:function(e1,op,e2){
@@ -227,7 +227,7 @@ var expr_no_comma=gg.expr([],{
     [["instanceof"],{prec:80,builder:function(e1,op,e2){
       return ["Op","instanceof",e1,e2]}}],
     [["=="],{prec:90,builder:function(e1,op,e2){
-      return ["Op","instanceof",e1,e2]}}],
+      return ["Op","==",e1,e2]}}],
     [["!="],{prec:90,builder:function(e1,op,e2){
       return ["Op","!=",e1,e2]}}],
     [["==="],{prec:90,builder:function(e1,op,e2){

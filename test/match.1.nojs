@@ -1,0 +1,90 @@
+
+{
+  var __v0=x
+  __v1:
+  do{
+    {
+      do{
+        {
+          if(!(__v0==1)){
+            break}
+          {
+            smth1()}
+          break __v1}
+      }while(false)
+      do{
+        {
+          var __v2=__v0
+          if(!(__v2.length==2)){
+            break}
+          var a=__v2[0]
+          var __v3=__v2[1]
+          if(!(__v3.length==1)){
+            break}
+          if(!__v3[0]==a){
+            break}
+          {
+            something(a*2)}
+          break __v1}
+      }while(false)
+      do{
+        {
+          var __v4=__v0
+          if(!(__v4.length==2)){
+            break}
+          var a=__v4[0]
+          var b=__v4[1]
+          {
+            smthelse(a+b)}
+          break __v1}
+      }while(false)}
+  }while(false)}
+
+
+var uid=0
+function gensym(){
+  if(a){
+    do_a()}
+  else if(b){
+    do_b()}
+  return ["Id","__v"+uid++]}
+function build_match(ee){
+  var tag=ee[0]
+  __assert(tag=="Match")
+  var expr=ee[1]
+  var pairs=ee[2]
+  var X=gensym()
+  var ML=gensym()
+  var pp=MAP(pairs,function(p,i){
+    var pattern=p[0]
+    var stat=p[1]
+    var ss=compile_cond(pattern,X)
+    ss.push(stat)
+    ss.push(["Break",ML])
+    return ["Do",["Id","false"],["Block",cc]]})
+  return ["Block",[["Var",[[X,expr]]],["Label",ML,["Do",["Id","false"],["Block",pp]]]]]}
+function build_cond(pattern,X){
+  var bound={}
+  var cc=[]
+  _build_cond(pattern,X)
+  return cc
+  function _build_cond(pat,X){
+    var tag=pat[0]
+    if(tag=="Array"){
+      var vals=pat[1]
+      var loc0=gensym()
+      cc.push(["Var",[[loc0,X]]])
+      cc.push(["If",["Op","!",["Paren",["Op","==",["Dot",loc0,["Id","length"]],["Number",vals.length]]]],["Block",[["Break",]]],])
+      MAP(vals,function(v,i){
+        _build_cond(v,["Idx",loc0,["Number",i]])})}
+    else if(tag=="Id"){
+      var id=pat[1]
+      if(!(idinbound)){
+        bound[id]=true
+        cc.push(["Var",[[pat,X]]])}
+      else {
+        cc.push(["If",["Op","==",["Op","!",X],pat],["Block",[["Break",]]],])}}
+    else {
+      cc.push(["If",["Op","!",["Paren",["Op","==",X,pat]]],["Block",[["Break",]]],])}}}
+module.exports={
+  build:build_match}

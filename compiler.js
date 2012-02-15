@@ -28,6 +28,8 @@ function compile(ee){
   depth--
   return r}
 
+var alpha=/^[a-zA-Z_0-9]+$/
+
 function compile_op(ee){
   var tag=ee[0]
   var op=ee[1]
@@ -37,7 +39,7 @@ function compile_op(ee){
 
 function fop2(op){
   return function(e1,e2){
-    if(op.length<=3){
+    if(!alpha.test(op)){
       var sep=""}
     else{
       var sep=" "}
@@ -99,7 +101,7 @@ var compile_table={
     var stat=ee[2]
     var xx=[
       "do","{","\n",
-      compile(stat),
+      compile(stat),"\n",
       "}","while","(",compile(cond),")"]
     return xx.join("")},
   
@@ -152,6 +154,11 @@ var compile_table={
     var xx=[
       "if","(",compile(cond),")",
       compile(stat)]
+    if(elstat){
+      xx.push("\n")
+      xx.push("else")
+      xx.push(" ")
+      xx.push(compile(elstat))}
     return xx.join("")},
 
   Cond:function(ee){
@@ -203,15 +210,15 @@ var compile_table={
     var label=ee[1]
     var xx=[
       "continue",
-      label?compile(label):""]},
+      label?" "+compile(label):""]},
   
   Break:function(ee){
     var tag=ee[0]
-    __assert(tag==="Continue")
+    __assert(tag==="Break")
     var label=ee[1]
     var xx=[
       "break",
-      label?compile(label):""]
+      label?" "+compile(label):""]
     return xx.join("")},
   
   Label:function(ee){
@@ -220,7 +227,7 @@ var compile_table={
     var id=ee[1]
     var stat=ee[2]
     var xx=[
-      compile(id),":",
+      compile(id),":","\n",
       compile(stat)]
     return xx.join("")},
 
@@ -384,7 +391,7 @@ function quote(ee){
   false&&console.log("======quote")
   false&&console.log(ee)
   if(ee===null){
-    return ee}
+    return "null"}
   __assert(ee && typeof ee==="object"
            &&typeof ee.length==="number"
            &&ee.length)
@@ -518,7 +525,7 @@ var quote_table={
   Dot:qfn("Dot"),
   Idx:qfn("Idx"),
   Pair:qfn("Pair"),
-
+  
   Op:function(ee){
     var tag=ee[0]
     __assert(tag==="Op")

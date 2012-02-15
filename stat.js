@@ -18,6 +18,8 @@ var expr_no_top_comma=_.expr_no_top_comma
 var id=require("./id")
 var splice=require("./meta").splice
 
+var match_builder=require("./match").build
+
 var for_header=gg.choice(
   [gg.seq([_stat,_stat,_stat],
           {builder:function(ee){
@@ -85,9 +87,17 @@ var atomic_stat=gg.mseq([
   [["match","(",expr,")","{",
     gg.list(
       [gg.seq(
-        [expr,":",_stat])]),"}"],
+        [expr,gg.opt(
+          gg.seq(["if","(",expr,")"],
+                 {builder:function(ee){
+                   return ee[0]}})),
+         ":",_stat],
+        {builder:function(ee){
+          return [ee[0],ee[1],ee[2]]}})]),"}"],
    {builder:function(ee){
-     return ["Match",ee[0],ee[1]]}}],
+     //return ["Match",ee[0],ee[1]]
+     return match_builder(
+       ["Match",ee[0],ee[1]])}}],
   [["throw",expr],{builder:function(ee){
     return ["Throw",ee[0]]}}],
   [["try","{",
@@ -108,12 +118,12 @@ var atomic_stat=gg.mseq([
 var stat=gg.choice([
   gg.seq([atomic_stat,gg.opt(";")],{
     builder:function(ee){return ee[0]}}),
-  gg.seq([expr,gg.opt(";")],{
-    builder:function(ee){return ee[0]}}),
   gg.seq(
     [id,":",_stat],
     {builder:function(ee){
       return ["Label",ee[0],ee[1]]}}),
+  gg.seq([expr,gg.opt(";")],{
+    builder:function(ee){return ee[0]}}),
   gg.seq([";"],{
     builder:function(ee){
       return ["Nop"]}}),

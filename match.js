@@ -1,147 +1,62 @@
 
+var _=require("no/smoke")
+var __assert=_.__assert
 
+function MAP(a,f,o){
+  var rr=[]
+  for(var i=0,l=a.length;i<l;i++){
+    rr.push(f.call(o,a[i],i))}
+  return rr}
 
+var uid=0
+function gensym(){
+  return ["Id","__v"+uid++]}
 
-function compile_match(ee){
+function build_match(ee){
   var tag=ee[0]
-  __assert(tag==="Match")
+  __assert(tag=="Match")
   var expr=ee[1]
   var pairs=ee[2]
-  MAP(pairs,function(p,i){
+  var X=gensym()
+  var ML=gensym()
+  var pp=MAP(pairs,function(p,i){
     var pattern=p[0]
-    var stat=p[1]
-    var x=compile_pattern(p0)
-  })
-}
+    var guard=p[1]
+    var stat=p[2]
+    var ss=build_cond(pattern,X)
+    if(guard){
+      ss.push(["If",["Op","!",["Paren",guard]],["Block",[["Break",null]]],null])}
+    ss.push(stat)
+    ss.push(["Break",ML])
+    return ["Do",["Id","false"],["Block",ss]]})
+  return ["Block",[["Var",[[X,expr]]],["Label",ML,["Do",["Id","false"],["Block",pp]]]]]}
 
+function build_cond(pattern,X){
+  var bound={}
+  var cc=[]
+  _build_cond(pattern,X)
+  return cc
+  function _build_cond(pat,X){
+    var tag=pat[0]
+    if(tag=="Array"){
+      var vals=pat[1]
+      var loc0=gensym()
+      cc.push(["Var",[[loc0,X]]])
+      cc.push(["If",["Op","!",["Paren",["Op","==",["Dot",loc0,["Id","length"]],["Number",vals.length]]]],["Block",[["Break",null]]],null])
+      MAP(vals,function(v,i){
+        _build_cond(v,["Idx",loc0,["Number",i]])})}
+    else if(tag=="Id"){
+      var id=pat[1]
+      if(id=="_"){
+        return ["Nop"]}
+      if(!(id in bound)){
+        bound[id]=true
+        cc.push(["Var",[[pat,X]]])}
+      else {
+        cc.push(["If",["Op","!",["Paren",["Op","==",X,pat]]],["Block",[["Break",null]]],null])}}
+    else {
+      cc.push(["If",["Op","!",["Paren",["Op","==",X,pat]]],["Block",[["Break",null]]],null])}}}
 
-function compile_pattern(ee){
-  if(typeof ee==="object"
-          && typeof ee.length==="number"){
-    var tag=ee[0]
-    if(tag==="Array"){
-      var elts=ee[1]
-      var sym=gensym()
-      `{var }
-      var cc=MAP(elts,function(e,i){
-        return compile_pattern(e)})
-      
-    }
-    else{
-      return `{if(,{X}===,{ee}){
-        action()}}}}
-  else if(ee===null){
-    return `{if(,{X}===null){
-      action()}}}
-}
-
-
-var gg=require("no/gg").gg
-var lx=require("./lexer")
-
-var _stat={
-  parse:function(){
-    return stat.parse.apply(stat,arguments)}}
-
-module.exports=_stat
-
-var _=require("./expr")
-var expr=_.expr
-var expr_no_top_comma=_.expr_no_top_comma
-
-var for_header=gg.choice(
-  [gg.seq([_stat,_stat,_stat],
-          {builder:function(ee){
-            return ["For_num",ee[0],ee[1],ee[2]]}}),
-   gg.seq(["var",gg.id,"in",expr],
-          {builder:function(ee){
-            return ["For_in",ee[0],ee[1]]}}),
-   gg.seq([gg.id,"in",expr],
-          {builder:function(ee){
-            return ["For_in",ee[0],ee[1]]}})])
-
-var atomic_stat=gg.mseq([
-  [["var",gg.list(
-    [gg.seq([gg.id,
-             gg.opt(
-               gg.seq(
-                 ["=",expr_no_top_comma],
-                 {builder:function(ee){return ee[0]}}))],
-            {builder:function(ee){
-              return ee}}),
-     ","])],
-   {builder:function(ee){
-     return ["Var",ee[0]]}}],
-  [["if","(",expr,")",_stat,
-    gg.opt(
-      gg.seq(["else",_stat],
-             {builder:function(ee){
-               return ee[0]}}))],
-   {builder:function(ee){
-     return ["If",ee[0],ee[1],ee[2]]}}],
-  [["{",gg.list([_stat,gg.opt(";")]),"}"],{builder:function(ee){
-    return ["Block",ee[0]]}}],
-  [["while","(",expr,")",_stat],{builder:function(ee){
-    return ["While",ee[0],ee[1]]}}],
-  [["for","(",for_header,")",_stat],{builder:function(ee){
-    return ["For",ee[0],ee[1]]}}], //FIXME
-  [["do",_stat,"while","(",expr,")"],
-   {builder:function(ee){
-     return ["Do",ee[1],ee[0]]}}],
-  [["return",gg.opt(expr)],
-   {builder:function(ee){
-     return ["Return",ee[0]]}}],
-  [["continue",gg.opt(gg.id)],
-   {builder:function(ee){
-     return ["Continue",ee[0]]}}],
-  [["break",gg.opt(gg.id)],
-   {builder:function(ee){
-     return ["Break",ee[0]]}}],
-  [["with","(",expr,")",_stat],
-   {builder:function(ee){
-     return ["With",ee[0],ee[1]]}}],
-  [["switch","(",expr,")","{",
-    gg.list(
-      [gg.seq(
-        ["case",expr,":",_stat])]),
-    gg.opt(
-      gg.seq(
-        ["default",":",_stat],
-        {builder:function(ee){return ee[0]}})),
-    "}"],
-   {builder:function(ee){
-     return ["Switch",ee[0],
-       ee[2],//default branch
-       ee[1]]}}],
-  [["throw",expr],{builder:function(ee){
-    return ["Throw",ee[0]]}}],
-  [["try","{",
-    gg.list([_stat,gg.opt(";")]),
-    "}",
-    gg.list(
-      [gg.seq(
-        ["catch","(",gg.id,")","{",
-         gg.list([_stat,gg.opt(";")]),"}"])]),
-    gg.opt(
-      gg.seq(["finally","{",
-              gg.list([_stat,gg.opt(";")]),
-              "}"]))
-   ],{builder:function(ee){
-     //FIXME
-     return fail}}]])
-
-var stat=gg.choice([
-  gg.seq([atomic_stat,gg.opt(";")],{
-    builder:function(ee){return ee[0]}}),
-  gg.seq([expr,gg.opt(";")],{
-    builder:function(ee){return ee[0]}}),
-  gg.seq(
-    [gg.id,":",_stat],
-    {builder:function(ee){
-      return ["Label",ee[0],ee[1]]}}),
-  gg.seq([";"],{
-    builder:function(ee){
-      return ["Nop"]}}),])
-
-
+module.exports={
+  build:build_match}
 

@@ -1,7 +1,9 @@
 
 
 function make_for(A,B,C,BODY){
-  var q=`{var ,{A}=a+b}
+  var q=`{for(,{A};,{B};,{C})
+       {,{BODY}}}
+
   return r
 }
 
