@@ -30,5 +30,25 @@ tt.add(
           ["Number", 3],
           ["Number", 2]]]]]))})
 
+tt.add(
+  "simple commaless object",function(){
+    var ls=lx.extract('{a:"b" "c":def e:3+2}')
+    var x=object.parse(ls)
+    dbg&&__log(x)
+    __assert(__eql(
+      x,
+      ["Object",
+       [["Pair",
+         ["Id", "a"],
+         ["String", "b"]],
+        ["Pair",
+         ["String", "c"],
+         ["Id", "def"]],
+        ["Pair",
+         ["Id", "e"],
+         ["Op", "+",
+          ["Number", 3],
+          ["Number", 2]]]]]))})
+
 tt.run_all(dbg)
 

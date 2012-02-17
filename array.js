@@ -10,7 +10,7 @@ var _=require("./expr"),expr=_.expr
 var expr_no_top_comma=_.expr_no_top_comma
 
 var js_array=gg.seq(
-  ["[",gg.list([expr_no_top_comma,","]),"]"],
+  ["[",gg.list([expr_no_top_comma,gg.opt(",")]),"]"],
   {builder:function(ee){
     return ["Array",ee[0]]}})
 

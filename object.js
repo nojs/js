@@ -20,7 +20,7 @@ var js_object=gg.seq(
           gg.number]),":",expr_no_top_comma],
        {builder:function(ee){
          return ["Pair",ee[0],ee[1]]}}),
-      ","]),
+      gg.opt(",")]),
    "}"],{
      builder:function(ee){
        return ["Object",ee[0]]}})
